@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { QuestionDTO, AnswerResult } from '@/types/quiz';
+import { useEffect, useState, useMemo } from 'react';
+import { QuestionDTO, AnswerResult, FilterType } from '@/types/quiz';
 import { fetchQuestions } from '@/lib/api';
 import QuestionCard from '@/components/QuestionCard';
+import FilterBar from '@/components/FilterBar';
 
 export default function Home() {
   const [questions, setQuestions] = useState<QuestionDTO[]>([]);
   const [results, setResults] = useState<Record<string, AnswerResult>>({});
+  const [filter, setFilter] = useState<FilterType>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +33,32 @@ export default function Home() {
   const handleAnswered = (result: AnswerResult) => {
     setResults((prev) => ({ ...prev, [result.questionId]: result }));
   };
+
+  const filterCounts = useMemo(() => {
+    const answered = Object.keys(results).length;
+    const correct = Object.values(results).filter((r) => r.correct).length;
+    const wrong = answered - correct;
+
+    return {
+      all: questions.length,
+      unanswered: questions.length - answered,
+      correct,
+      wrong,
+    };
+  }, [questions, results]);
+
+  const filteredQuestions = useMemo(() => {
+    switch (filter) {
+      case 'unanswered':
+        return questions.filter((q) => !results[q.id]);
+      case 'correct':
+        return questions.filter((q) => results[q.id]?.correct === true);
+      case 'wrong':
+        return questions.filter((q) => results[q.id]?.correct === false);
+      default:
+        return questions;
+    }
+  }, [questions, results, filter]);
 
   const answeredCount = Object.keys(results).length;
   const correctCount = Object.values(results).filter((r) => r.correct).length;
@@ -62,7 +90,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Quiz</h1>
           {answeredCount > 0 && (
             <p className="text-sm text-gray-500 mt-1">
@@ -73,16 +101,29 @@ export default function Home() {
           )}
         </div>
 
+        <div className="mb-6">
+          <FilterBar active={filter} onChange={setFilter} counts={filterCounts} />
+        </div>
+
         <div className="flex flex-col gap-4">
-          {questions.map((q, i) => (
-            <QuestionCard
-              key={q.id}
-              question={q}
-              index={i}
-              savedResult={results[q.id]}
-              onAnswered={handleAnswered}
-            />
-          ))}
+          {filteredQuestions.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              No questions match this filter.
+            </div>
+          ) : (
+            filteredQuestions.map((q) => {
+              const originalIndex = questions.findIndex((oq) => oq.id === q.id);
+              return (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  index={originalIndex}
+                  savedResult={results[q.id]}
+                  onAnswered={handleAnswered}
+                />
+              );
+            })
+          )}
         </div>
       </div>
     </main>
