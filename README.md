@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quiz Web App
+
+A full-stack test-taking application built with Next.js (TypeScript) and a layered Node.js / Express microservice backend.
+
+## Features
+
+- **Question List**: 7 multiple-choice questions with 5 options each.
+- **Server-Side Answer Validation**: Correct answers are kept strictly on the server and never exposed in the initial questions payload.
+- **Immediate Feedback**: Selecting an option checks against the server and highlights whether the choice is correct or incorrect.
+- **Question Filters**: Filter questions by `All`, `Unanswered`, `Correct`, and `Wrong` with real-time count badges.
+- **Score Tracking**: Displays live score and progress counter (`X of 7 correct · Y of 7 answered`).
+- **Progress Persistence**: Answers and progress survive page reloads using local storage, with an option to reset.
+- **Loading & Error States**: Graceful UI handling for pending network requests and server connectivity errors.
+- **Comprehensive Test Coverage**: Unit and integration test suites for both frontend components/hooks and backend service/API endpoints (>90% coverage).
+
+---
+
+## Architecture
+
+```
+.
+├── src/                      # Next.js Frontend
+│   ├── app/                  # App router pages and layout
+│   ├── components/           # Reusable UI components (QuestionCard, FilterBar)
+│   ├── hooks/                # Custom React hooks (useLocalStorage)
+│   ├── lib/                  # API client service
+│   ├── types/                # Shared frontend types
+│   └── __tests__/            # Frontend test suites (Jest + React Testing Library)
+│
+└── backend/                  # Express Microservice
+    └── src/
+        ├── config/           # Environment and server configuration
+        ├── controllers/      # Request handlers
+        ├── data/             # In-memory question data store
+        ├── middleware/       # Validation and error handling middleware
+        ├── routes/           # Express route definitions
+        ├── services/         # Business logic layer
+        ├── types/            # TypeScript interfaces and DTOs
+        ├── utils/            # Standardized API response utilities
+        └── __tests__/        # Backend test suites (Jest + Supertest)
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### 1. Prerequisites
+
+- Node.js (v20+ recommended)
+- npm
+
+### 2. Backend Setup
 
 ```bash
+cd backend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The backend API runs on `http://localhost:4000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Frontend Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+From the root directory:
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+The frontend application runs on `http://localhost:3000`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Running Tests
 
-## Deploy on Vercel
+### Run Both Frontend & Backend Tests
+From the root directory:
+```bash
+npm run test:all
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Run Frontend Tests
+```bash
+npm test
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Run Backend Tests
+```bash
+npm run test:backend
+```
+
+### Test Coverage Reports
+To generate and view interactive HTML coverage reports:
+```bash
+# Frontend coverage
+npm run test:coverage
+
+# Backend coverage
+npm run test:backend:coverage
+```
+Reports will be generated in `coverage/lcov-report/index.html` and `backend/coverage/lcov-report/index.html`.
