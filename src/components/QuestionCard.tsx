@@ -92,7 +92,9 @@ export default function QuestionCard({ question, index, savedResult, onAnswered 
             result.correct ? 'text-green-600' : 'text-red-600'
           }`}
         >
-          {result.correct ? '✓ Correct!' : `✗ Wrong — the answer is ${String.fromCharCode(65 + result.correctIndex)}`}
+          {result.correct
+            ? 'Correct'
+            : `Incorrect. Correct answer: ${String.fromCharCode(65 + result.correctIndex)}`}
         </div>
       )}
     </div>
