@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "jest"
+    "test": "jest",
+    "test:backend": "npm --prefix backend test",
+    "test:all": "npm test && npm --prefix backend test"
   },
   "dependencies": {
     "next": "16.4.3",
