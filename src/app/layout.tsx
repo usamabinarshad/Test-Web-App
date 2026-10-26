@@ -17,7 +17,11 @@ export const metadata: Metadata = {
   description: "Test your knowledge with our quiz",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"

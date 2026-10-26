@@ -7,15 +7,19 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        setValue(JSON.parse(stored));
+    const frame = requestAnimationFrame(() => {
+      try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          setValue(JSON.parse(stored));
+        }
+      } catch {
+        // corrupted data — fall back to initial value
       }
-    } catch {
-      // corrupted data — fall back to initial value
-    }
-    setLoaded(true);
+      setLoaded(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [key]);
 
   const update = useCallback(

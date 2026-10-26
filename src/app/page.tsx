@@ -18,20 +18,41 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadQuestions();
+    let isCancelled = false;
+
+    fetchQuestions()
+      .then((data) => {
+        if (!isCancelled) {
+          setQuestions(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!isCancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load questions');
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
-  const loadQuestions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchQuestions();
-      setQuestions(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load questions');
-    } finally {
-      setLoading(false);
-    }
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+
+    fetchQuestions()
+      .then((data) => {
+        setQuestions(data);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Failed to load questions');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleAnswered = (result: AnswerResult) => {
@@ -86,7 +107,7 @@ export default function Home() {
         <div className="text-center">
           <p className="text-red-500 text-lg mb-4">{error}</p>
           <button
-            onClick={loadQuestions}
+            onClick={handleRetry}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Try Again

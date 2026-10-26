@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 describe('useLocalStorage', () => {
@@ -6,11 +6,13 @@ describe('useLocalStorage', () => {
     localStorage.clear();
   });
 
-  it('initializes with default value and marks loaded', () => {
+  it('initializes with default value and marks loaded', async () => {
     const { result } = renderHook(() => useLocalStorage('test_key', { count: 0 }));
 
     expect(result.current.value).toEqual({ count: 0 });
-    expect(result.current.loaded).toBe(true);
+    await waitFor(() => {
+      expect(result.current.loaded).toBe(true);
+    });
   });
 
   it('updates state and persists to localStorage', () => {
